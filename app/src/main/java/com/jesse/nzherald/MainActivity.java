@@ -18,13 +18,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
 {
-    private TextView textView;
     private RequestQueue requestQueue;
     private Context context;
     static final private String REQUEST_NEWS = "News";
     private JSONArray responseArray;
+    public ArrayList<Article> articleArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,7 +35,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         context = this;
 
-        textView = findViewById(R.id.textView);
+        articleArrayList = new ArrayList<>();
+
         fetchNews();
     }
 
@@ -51,13 +54,16 @@ public class MainActivity extends AppCompatActivity
                         {
                             Toast.makeText(context, "Got JSON! ", Toast.LENGTH_SHORT).show();
                             responseArray = response.getJSONArray("articles");
-                            String text = "";
                             for (int i=0; i<responseArray.length(); i++)
                             {
                                 JSONObject jsonObject = responseArray.getJSONObject(i);
-                                text += jsonObject.getString("title") + "\n";
+                                String title = jsonObject.getString("title");
+                                String author = jsonObject.getString("author");
+                                String date = jsonObject.getString("date");
+                                String description = jsonObject.getString("description");
+                                String photoURL = jsonObject.getString("urlToImage");
+                                articleArrayList.add(new Article(title, author, date, description, photoURL));
                             }
-                            textView.setText(text);
                         } catch (JSONException e)
                         {
                             e.printStackTrace();
