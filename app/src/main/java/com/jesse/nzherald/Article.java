@@ -7,14 +7,16 @@ public class Article
     String date;
     String description;
     String photoURL;
+    String newsURL;
 
-    public Article(String _title, String _author, String _date, String _description, String _photoURL)
+    public Article(String _title, String _author, String _date, String _description, String _photoURL, String _newsURL)
     {
         title = _title;
         author = _author;
         date = _date;
         description = _description;
         photoURL = _photoURL;
+        newsURL = _newsURL;
     }
 
     public String getTitle()
@@ -55,5 +57,15 @@ public class Article
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public String getPhotoURL()
+    {
+        return photoURL;
+    }
+
+    public void setPhotoURL(String photoURL)
+    {
+        this.photoURL = photoURL;
     }
 }

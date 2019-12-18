@@ -2,6 +2,8 @@ package com.jesse.nzherald;
 
 
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +13,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// Todo Implement methods required
 //onCreateViewHolder()
 //onBindViewHolder
 //getItemCount
@@ -37,13 +41,32 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position)
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position)
     {
-        holder.photo.setImageResource(articleList.get(position).getImageResource()); //TODO get image using Picasso
+        Picasso.get().load(articleList.get(position).getPhotoURL()).into(holder.photo);
         holder.title.setText(articleList.get(position).getTitle());
-        holder.author.setText(articleList.get(position).getAuthor() + "");
+        if (!articleList.get(position).getAuthor().equalsIgnoreCase("null"))
+        {
+            holder.author.setText(articleList.get(position).getAuthor() + "");
+        }
+        else
+        {
+            holder.author.setVisibility(View.GONE);
+        }
         holder.date.setText(articleList.get(position).getDate());
         holder.description.setText(articleList.get(position).getDescription()+"");
+
+        holder.cardView.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                String url = articleList.get(position).newsURL;
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+
+            }
+        });
     }
 
     @Override
@@ -52,7 +75,6 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
         return articleList.size();
     }
 
-    // Todo implement ViewHolder
     public static class MyViewHolder extends RecyclerView.ViewHolder
     {
         public ImageView photo;
@@ -60,8 +82,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
         public TextView author;
         public TextView date;
         public TextView description;
+        public CardView cardView;
         // get references to each of the views in the single_item.xml
-        // Todo implement constructor
         private MyViewHolder(@NonNull View itemView)
         {
             super(itemView);
@@ -70,6 +92,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.MyViewHolder> 
             author = itemView.findViewById(R.id.author);
             date = itemView.findViewById(R.id.date);
             description = itemView.findViewById(R.id.description);
+            cardView = itemView.findViewById(R.id.newsCard);
         }
     }
 
