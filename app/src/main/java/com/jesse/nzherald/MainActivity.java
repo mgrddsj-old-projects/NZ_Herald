@@ -6,6 +6,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity
     private NewsAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private List<Article> list;
+    private SwipeRefreshLayout swipeContainer;
+    private String searchQueryRealtime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity
 
         articleArrayList = new ArrayList<>();
 
+        searchQueryRealtime = "";
+
+        setupPullToRefresh();
         fetchNews();
     }
 
@@ -68,6 +74,7 @@ public class MainActivity extends AppCompatActivity
                         {
                             Toast.makeText(context, "Got latest news! ", Toast.LENGTH_SHORT).show();
                             JSONArray responseArray = response.getJSONArray("articles");
+                            articleArrayList.clear();
                             for (int i=0; i<responseArray.length(); i++)
                             {
                                 JSONObject jsonObject = responseArray.getJSONObject(i);
@@ -109,43 +116,45 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setLayoutManager(layoutManager);
         list = articleArrayList;
 
+//        // Code to move or remove news
+//        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT)
+//        {
+//            @Override
+//            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target)
+//            {
+//                final int fromPos = viewHolder.getAdapterPosition();
+//                final int toPos = target.getAdapterPosition();
+//                list.add(toPos, list.remove(fromPos));
+//                mAdapter.notifyItemMoved(fromPos, toPos);
+//                return true;
+//            }
+//
+//            @Override
+//            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction)
+//            {
+//                final int position = viewHolder.getAdapterPosition();
+//                final Article deleted = list.get(position);
+//                switch (direction)
+//                {
+//                    case ItemTouchHelper.LEFT:
+//                        list.remove(position);
+//                        mAdapter.notifyItemRemoved(position);
+//                        Snackbar.make(recyclerView, "Swiped left, item deleted. ", Snackbar.LENGTH_SHORT).
+//                                setAction("Undo", new View.OnClickListener()
+//                                {
+//                                    @Override
+//                                    public void onClick(View view)
+//                                    {
+//                                        list.add(position, deleted);
+//                                        mAdapter.notifyItemInserted(position);
+//                                    }
+//                                }).show();
+//                }
+//            }
+//        });
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT)
-        {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target)
-            {
-                final int fromPos = viewHolder.getAdapterPosition();
-                final int toPos = target.getAdapterPosition();
-                list.add(toPos, list.remove(fromPos));
-                mAdapter.notifyItemMoved(fromPos, toPos);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction)
-            {
-                final int position = viewHolder.getAdapterPosition();
-                final Article deleted = list.get(position);
-                switch (direction)
-                {
-                    case ItemTouchHelper.LEFT:
-                        list.remove(position);
-                        mAdapter.notifyItemRemoved(position);
-                        Snackbar.make(recyclerView, "Swiped left, item deleted. ", Snackbar.LENGTH_SHORT).
-                                setAction("Undo", new View.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(View view)
-                                    {
-                                        list.add(position, deleted);
-                                        mAdapter.notifyItemInserted(position);
-                                    }
-                                }).show();
-                }
-            }
-        });
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+        swipeContainer.setRefreshing(false);
     }
 
     @Override
@@ -188,6 +197,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onQueryTextChange(String newText)
             {
+                searchQueryRealtime = newText;
                 return false;
             }
         });
@@ -241,6 +251,34 @@ public class MainActivity extends AppCompatActivity
                 });
         jsonObjectRequest.setTag(REQUEST_NEWS); // TODO Cancel request on exit.
         requestQueue.add(jsonObjectRequest);
+    }
+
+    private void setupPullToRefresh()
+    {
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                if (searchQueryRealtime.length() != 0)
+                {
+                    searchNews(searchQueryRealtime);
+                }
+                else
+                {
+                    fetchNews();
+                }
+            }
+        });
+        // Configure the refreshing colors
+//        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+//                android.R.color.holo_green_light,
+//                android.R.color.holo_orange_light,
+//                android.R.color.holo_red_light);
+        swipeContainer.setColorSchemeColors(getResources().getColor(android.R.color.black));
     }
 
 }
