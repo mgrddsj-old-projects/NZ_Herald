@@ -163,24 +163,24 @@ public class MainActivity extends AppCompatActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
 
-        MenuItem filterItem = menu.findItem(R.id.filter);
-        SearchView filterView = (SearchView) filterItem.getActionView();
-
-        filterView.setOnQueryTextListener(new SearchView.OnQueryTextListener()
-        {
-            @Override
-            public boolean onQueryTextSubmit(String s)
-            {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s)
-            {
-                mAdapter.getFilter().filter(s);
-                return false;
-            }
-        });
+//        MenuItem filterItem = menu.findItem(R.id.filter);
+//        SearchView filterView = (SearchView) filterItem.getActionView();
+//
+//        filterView.setOnQueryTextListener(new SearchView.OnQueryTextListener()
+//        {
+//            @Override
+//            public boolean onQueryTextSubmit(String s)
+//            {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String s)
+//            {
+//                mAdapter.getFilter().filter(s);
+//                return false;
+//            }
+//        });
 
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity
             public boolean onQueryTextChange(String newText)
             {
                 searchQueryRealtime = newText;
+                mAdapter.getFilter().filter(newText);
                 return false;
             }
         });
